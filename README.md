@@ -84,15 +84,15 @@ class MyDependedModel(models.Model):
     ],
 }
 ```
-- Документация по определению представлений - https://doc.open-odoo.ru/developer/13.0/ru/reference/data.html
-- Создаем сами представления.
+- Документация по определению представлений - https://doc.open-odoo.ru/developer/13.0/ru/reference/views.html
+- Создаем сами представления.    
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
    <data>      
-      <record id="cs_kind_vmp_tree" model="ir.ui.view" >
-         <field name="name">cs.kind.vmp.tree</field>
-         <field name="model">tfoms_dict.cs_kind_vmp</field>
+      <record id="my_main_model_tree" model="ir.ui.view" >
+         <field name="name">my.main.model</field>
+         <field name="model">my_main_model</field>
          <field name="type">tree</field>
          <field name="arch" type="xml">
             <tree>
@@ -103,9 +103,9 @@ class MyDependedModel(models.Model):
          </field>
       </record>
 
-      <record id="cs_kind_vmp_form" model="ir.ui.view" >
-         <field name="name">cs.kind.vmp.form</field>
-         <field name="model">tfoms_dict.cs_kind_vmp</field>
+      <record id="my_main_depended_form" model="ir.ui.view" >
+         <field name="name">my.main.depended</field>
+         <field name="model">my_main_depended</field>
          <field name="type">form</field>
          <field name="arch" type="xml">
             <form>               
@@ -115,7 +115,7 @@ class MyDependedModel(models.Model):
                   <field name="f_group_vmp" />
                </group>
                   <notebook>             
-                  <page string="Метод ВМП">                     
+                  <page string="Имя страницы">                     
                      <field name='f_method_vmp'>                     
                         <tree limit="10">
                            <field name="c_name"/>
@@ -128,3 +128,30 @@ class MyDependedModel(models.Model):
          </field>
       </record>
 ```
+Тут мы в одном файле создаем 2 вида представлений, Tree и Form.   
+Они определяются здесь ```<field name="type">tree</field>```   
+- Далее мы определяем узел tree и в нем перечисляем поля модели, которые хотим отобразить
+```xml
+<field name="arch" type="xml">
+            <tree>
+               <field name="c_code" />
+               <field name="c_name" />
+               <field name="f_group_vmp" />                
+            </tree>
+```
+- В определении представления Form происходит тоже самое, только мы добавляем внуть еще один узел tree для отображения списка сущностей связанной таблицы, через поле **f_method_vmp** подтягиваем значения
+```xml
+ <notebook>             
+    <page string="ВМП Метод">                     
+      <field name='f_method_vmp'>                     
+         <tree limit="10">  <!-- Кол-во страницы отображаемых в списке на одной странице -->
+            <field name="c_name"/>
+            <field name="c_diagnosis"/>
+         </tree>
+      </field>
+   </page>
+</notebook>
+```
+В итоге должны получить примерную картину
+
+![Пример формы](https://github.com/max-yakovlev/Alkona-Description-Odoo/assets/165757267/69d39e52-f6e4-4e36-9e5f-87fe528b4966)
