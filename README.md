@@ -32,6 +32,8 @@ from odoo import models, fields, api
 class TestMainModel(models.Model):
     _name = 'my_main_model'
     .....
+    c_name = fields.Char(string='Наименование', size=800, required=True, index='trigram')
+    c_code = fields.Char(string='Код', size=50)
     f_method_vmp = fields.One2many('my_depended_model', 'f_vid', groups='tfoms-base.group_tfoms_user')
     .....
 ```
@@ -46,6 +48,8 @@ from odoo import models, fields, api
 class MyDependedModel(models.Model):
     _name = 'my_depended_model'
     .....
+    c_name = fields.Text(string='Наименование', required=True, index='trigram')
+    c_diagnosis = fields.Text(string='Диагнозы')
     f_vid = fields.Many2one(string='Произвольное имя', comodel_name='my_main_model', ondelete='restrict', index='btree')
     .....
 ```
@@ -60,14 +64,14 @@ class MyDependedModel(models.Model):
 
 ```python
 {
-    'name': "ТФОМС.Справочники",
-    'summary': "Справочники ТФОМС",
+    'name': "Имя",
+    'summary': "Краткое содержание",
     'description': """
-Определения справочников
+Описание
     """,
-    'author': "Алькона",
-    'website': "https://alkona.it",
-    'category': 'ТФОМС Справочники',
+    'author': "Имя Автора",
+    'website': "Ссылка на ваш сайт",
+    'category': 'категория',
     'version': '0.1',
     # any module necessary for this one to work correctly
     'depends': ['base'],
@@ -80,4 +84,47 @@ class MyDependedModel(models.Model):
     ],
 }
 ```
-- https://doc.open-odoo.ru/developer/13.0/ru/reference/data.html
+- Документация по определению представлений - https://doc.open-odoo.ru/developer/13.0/ru/reference/data.html
+- Создаем сами представления.
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+   <data>      
+      <record id="cs_kind_vmp_tree" model="ir.ui.view" >
+         <field name="name">cs.kind.vmp.tree</field>
+         <field name="model">tfoms_dict.cs_kind_vmp</field>
+         <field name="type">tree</field>
+         <field name="arch" type="xml">
+            <tree>
+               <field name="c_code" />
+               <field name="c_name" />
+               <field name="f_group_vmp" />                
+            </tree>               
+         </field>
+      </record>
+
+      <record id="cs_kind_vmp_form" model="ir.ui.view" >
+         <field name="name">cs.kind.vmp.form</field>
+         <field name="model">tfoms_dict.cs_kind_vmp</field>
+         <field name="type">form</field>
+         <field name="arch" type="xml">
+            <form>               
+               <group>
+                  <field name="c_code" />
+                  <field name="c_name" />
+                  <field name="f_group_vmp" />
+               </group>
+                  <notebook>             
+                  <page string="Метод ВМП">                     
+                     <field name='f_method_vmp'>                     
+                        <tree limit="10">
+                           <field name="c_name"/>
+                           <field name="c_diagnosis"/>
+                        </tree>
+                     </field>              
+                  </page>
+               </notebook>                                        
+            </form>
+         </field>
+      </record>
+```
