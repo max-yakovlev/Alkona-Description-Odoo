@@ -99,7 +99,6 @@ class MyDependedModel(models.Model):
             <tree>  <!-- Тут указываем с каким типом представления мы хотим работать -->
                <field name="c_code" />  <!-- Поля модели -->
                <field name="c_name" />
-               <field name="f_group_vmp" />                
             </tree>               
          </field>
       </record>
@@ -113,7 +112,6 @@ class MyDependedModel(models.Model):
                <group> <!-- Разделение на подгруппы -->
                   <field name="c_code" />
                   <field name="c_name" />
-                  <field name="f_group_vmp" />
                </group> 
                   <notebook>   <!-- Создаем набор вкладок -->                
                   <page string="Имя страницы">   <!-- Куда помещаем страницу с именем, можно определить другие страницы ниже для расширения -->                  
@@ -121,6 +119,7 @@ class MyDependedModel(models.Model):
                         <tree limit="10">      <!-- Кол-во страницы отображаемых в списке на одной странице -->
                            <field name="c_name"/>
                            <field name="c_diagnosis"/>
+                           <field name="f_vid" />
                         </tree>
                      </field>              
                   </page>
