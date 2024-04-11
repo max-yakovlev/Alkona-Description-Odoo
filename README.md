@@ -1,4 +1,4 @@
-# Alkona-Description-Odoo
+# Alkona-Description-Odoo_One2many
 Odoo - TUTORIAL
 1. Создание связей One2many.
    - Реализация их связей.
