@@ -86,39 +86,39 @@ class MyDependedModel(models.Model):
 }
 ```
 - Документация по определению представлений - https://doc.open-odoo.ru/developer/13.0/ru/reference/views.html
-- Создаем сами представления.    
+- Создаем сами представления. View, menu, action можно прописать в одном файле, можно логически разделить по файлам. Главное все обернуть в <odoo>...</odoo>   
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<odoo>
+<odoo> <!-- Тут мы в одном файле создаем 2 вида представлений, Tree и Form. -->
    <data>      
-      <record id="my_main_model_tree" model="ir.ui.view" >
+      <record id="my_main_model_tree" model="ir.ui.view" >  
          <field name="name">my.main.model</field>
          <field name="model">my_main_model</field>
-         <field name="type">tree</field>
+         <field name="type">tree</field> <!-- Представление типа Tree -->
          <field name="arch" type="xml">
-            <tree>
-               <field name="c_code" />
+            <tree>  <!-- Тут указываем с каким типом представления мы хотим работать -->
+               <field name="c_code" />  <!-- Поля модели -->
                <field name="c_name" />
                <field name="f_group_vmp" />                
             </tree>               
          </field>
       </record>
 
-      <record id="my_main_depended_form" model="ir.ui.view" >
+      <record id="my_main_depended_form" model="ir.ui.view" >  
          <field name="name">my.main.depended</field>
          <field name="model">my_main_depended</field>
-         <field name="type">form</field>
+         <field name="type">form</field> <!-- Представление типа Form -->
          <field name="arch" type="xml">
-            <form>               
-               <group>
+            <form>   <!-- Тут указываем с каким типом представления мы хотим работать -->            
+               <group> <!-- Разделение на подгруппы -->
                   <field name="c_code" />
                   <field name="c_name" />
                   <field name="f_group_vmp" />
-               </group>
-                  <notebook>             
-                  <page string="Имя страницы">                     
-                     <field name='f_method_vmp'>                     
-                        <tree limit="10">
+               </group> 
+                  <notebook>   <!-- Создаем набор вкладок -->                
+                  <page string="Имя страницы">   <!-- Куда помещаем страницу с именем, можно определить другие страницы ниже для расширения -->                  
+                     <field name='f_method_vmp'>     <!-- Собственно само поле ссылка, предоставляющее данные из зависимой модели -->                 
+                        <tree limit="10">      <!-- Кол-во страницы отображаемых в списке на одной странице -->
                            <field name="c_name"/>
                            <field name="c_diagnosis"/>
                         </tree>
@@ -128,30 +128,29 @@ class MyDependedModel(models.Model):
             </form>
          </field>
       </record>
+   </date>
+</odoo>
 ```
-Тут мы в одном файле создаем 2 вида представлений, Tree и Form.   
-Они определяются здесь ```<field name="type">tree</field>```   
-- Далее мы определяем узел tree и в нем перечисляем поля модели, которые хотим отобразить
+- Для того, чтобы все заработало нам нужно еще создать модель-действие = action, на которое опирается наша основная модель.
 ```xml
-<field name="arch" type="xml">
-            <tree>
-               <field name="c_code" />
-               <field name="c_name" />
-               <field name="f_group_vmp" />                
-            </tree>
+<odoo>
+   <record id="my_main_model_action" model="ir.actions.act_window"> <!-- id - Произвольное имя, на него мы будем ссылаться вызывая этот Action, model - Выбираем системную модель, которая определяет ее действие  -->
+         <field name="name">Виды ВМП</field> <!-- Имя action, которое будет мы видеть как ссылку -->
+         <field name="res_model">my_main_model</field> <!-- Указываем нашу основную модель -->
+         <field name="view_mode">tree,form</field> <!-- Перечисляем список форм отображения, Tree - List, Form - form -->
+         <field name="limit" eval="10"/> <!-- Сколько записей будет отображаться на одной странице -->
+   </record>
+</odoo>
 ```
-- В определении представления Form происходит тоже самое, только мы добавляем внуть еще один узел tree для отображения списка сущностей связанной таблицы, через поле **f_method_vmp** подтягиваем значения
+- Осталось только создать кнопку/ссылку, которая будет вызывать наш Action определенный выше, а тот в свою очередь ссылается на нашу основную модель вызывая ее и ее формы, и она уже отображает себя и связаные с собой данные
 ```xml
- <notebook>             
-    <page string="ВМП Метод">                     
-      <field name='f_method_vmp'>                     
-         <tree limit="10">  <!-- Кол-во страницы отображаемых в списке на одной странице -->
-            <field name="c_name"/>
-            <field name="c_diagnosis"/>
-         </tree>
-      </field>
-   </page>
-</notebook>
+<odoo>
+    <data>
+        <menuitem name="Справочники" id="main_menu_root" groups="tfoms-base.group_tfoms_user" /> <!-- Наше основное меню/кнопка/ссылка, которое мы видим в UI. groups- группа юзеров которые видят это меню -->        
+        <menuitem name="Виды ВМП" id="sub_menu_root" action="my_main_model_action" groups="tfoms-base.group_tfoms_user" parent="main_menu_root"/> <!-- Наше подменю кнопка/ссылка. Тут нужно указать наш Action определенный выше. Здесь она ссылкается на основную кнопку/ссылкую -->
+    </data>
+</odoo>
+
 ```
 В итоге должны получить примерную картину
 
